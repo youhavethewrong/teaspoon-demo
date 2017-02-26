@@ -1,8 +1,8 @@
 (defproject teaspoon-demo "0.1.0-alpha1"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "An electron-based client for running traveling salesperson demos."
+  :url "https://github.com/youhavethewrong/teaspoon-demo"
+  :license {:name "Apache License, Version 2.0"
+            :url "https://www.apache.org/licenses/LICENSE-2.0"}
 
   :source-paths ["src/cljs"]
 
