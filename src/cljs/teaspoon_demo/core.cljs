@@ -34,31 +34,42 @@
                    c13 c14 c15 c16
                    c17 c18 c19 c20])))
 
+(def t0 1000000)
+
 (defn log-tour
   [tour]
   (cons
    (str "Final distance of " (m/get-distance tour)
         " units over "
-        (m/get-tour-size tour)  " cities.\n")
+        (m/get-tour-size tour)  " cities.\n"
+        "Tour order is:\n")
    (map
     (fn [{:keys [x y]}]
-      (str "City " x " " y ".\n"))
+      (str "City at (" x ", " y ").\n"))
     (:l tour))))
-
-;; (sa/find-solution tour-manager n)
-
 
 (rf/reg-event-db
  :load-db
  (fn [_ [_ _]]
    {:tour-manager tour-manager
+    :spinner false
     :tour nil}))
 
 (rf/reg-event-db
  :run-sim
  (fn [db [_ _]]
-   (let [solution (sa/find-solution tour-manager 100000)]
-     (assoc db :tour solution))))
+   (let [solution (sa/find-solution tour-manager t0)]
+     (assoc db :tour solution :spinner false))))
+
+(rf/reg-event-db
+ :spinner-on
+ (fn [db [_ _]]
+   (assoc db :spinner true)))
+
+(rf/reg-sub
+  :spinner
+  (fn [db _]
+    (:spinner db)))
 
 (rf/reg-sub
   :tour
@@ -67,27 +78,48 @@
 
 (defn title
   []
-  [:div
-   "Simulated annealing solution for 20 city tour."])
+  [:h2 "Simulated annealing solution for 20 city tour."])
+
+(defn city-pixel
+  [{:keys [x y] :as city}]
+  ^{:key (str x y)} [:rect {:x x :y y :width 2 :height 2 :stroke "red" :stroke-width 1}])
 
 (defn canvas
   []
   (when-let [r @(rf/subscribe [:tour])]
-    [:pre (log-tour r)]))
+    [:div
+     [:p "Cities arranged on a 204x204 px grid."]
+     [:div
+      [:svg {:style {:width 204 :height 204}}
+       (map
+        city-pixel
+        (:l r))]
+      [:h4 "Tour log"]
+      [:pre (log-tour r)]]]))
+
+(defn spinner
+  []
+  (when-let [r @(rf/subscribe [:spinner])]
+    (when r
+      [:h3 "Running simulation..."])))
 
 (defn control-panel
   []
   [:input
    {:type "button"
     :value "GO!"
-    :on-click  #(rf/dispatch [:run-sim])}])
+    :on-click  (fn [_]
+                 (rf/dispatch-sync [:spinner-on])
+                 (rf/dispatch [:run-sim])) }])
 
 (defn demo
   []
   [:div
    [title]
+   [control-panel]
    [canvas]
-   [control-panel]])
+   [spinner]
+   ])
 
 (defn mount-root
   []
@@ -97,21 +129,3 @@
 (defn init!
   []
   (mount-root))
-
-
-(comment
-
-  (defn init-canvas [canvas]
-  (let [ctx (.getContext canvas "2d")
-        width (.-width canvas)
-        height (.-height canvas)]
-    (do
-      (.clearRect ctx 0 0 width height)
-      (set! (. ctx -lineWidth) 5)
-      (.beginPath ctx)
-      (.moveTo ctx 0 0)
-      (.lineTo ctx 0 height)
-      (.lineTo ctx width height)
-      (.lineTo ctx width 0)
-      (.lineTo ctx 0 0)
-      (.stroke ctx)))))
