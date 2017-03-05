@@ -1,9 +1,11 @@
 (ns teaspoon-demo.core
-  (:require [reagent.core :as reagent]
-            [re-frame.core :as rf]
-            [cljsjs.react]
-            [teaspoon-demo.model :refer [City TourManager] :as m]
-            [teaspoon-demo.sa :as sa]))
+  (:require
+   [clojure.string :as str]
+   [reagent.core :as reagent]
+   [re-frame.core :as rf]
+   [cljsjs.react]
+   [teaspoon-demo.model :refer [City TourManager] :as m]
+   [teaspoon-demo.sa :as sa]))
 
 (enable-console-print!)
 
@@ -82,7 +84,16 @@
 
 (defn city-pixel
   [{:keys [x y] :as city}]
-  ^{:key (str x y)} [:rect {:x x :y y :width 2 :height 2 :stroke "red" :stroke-width 1}])
+  ^{:key (str x y)} [:rect {:x (inc x) :y (inc y)
+                            :width 3 :height 3
+                            :stroke "red" :stroke-width 1}])
+
+(defn tour-path
+  [tour]
+  [:polyline {:fill "none" :stroke "black"
+              :points (str/join " " (map
+                                     (fn [{:keys [x y]}] (str x "," y))
+                                     tour))}])
 
 (defn canvas
   []
@@ -93,7 +104,8 @@
       [:svg {:style {:width 204 :height 204}}
        (map
         city-pixel
-        (:l r))]
+        (:l r))
+       (tour-path (:l r))]
       [:h4 "Tour log"]
       [:pre (log-tour r)]]]))
 
