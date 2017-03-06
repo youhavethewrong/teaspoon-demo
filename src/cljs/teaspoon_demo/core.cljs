@@ -84,7 +84,7 @@
 
 (defn city-pixel
   [{:keys [x y] :as city}]
-  ^{:key (str x y)} [:rect {:x (inc x) :y (inc y)
+  ^{:key (str x y)} [:rect {:x (dec x) :y (dec y)
                             :width 3 :height 3
                             :stroke "red" :stroke-width 1}])
 
