@@ -80,58 +80,71 @@
 
 (defn title
   []
-  [:h2 "Simulated annealing solution for 20 city tour."])
+  [:div.span8.offset2
+   [:h2 "Traveling Salesperson, Twenty City Tour"]])
 
 (defn city-pixel
   [{:keys [x y] :as city}]
   ^{:key (str x y)} [:rect {:x (dec x) :y (dec y)
                             :width 3 :height 3
-                            :stroke "red" :stroke-width 1}])
+                            :stroke "blue" :stroke-width 1}])
 
 (defn tour-path
   [tour]
-  [:polyline {:fill "none" :stroke "black"
+  [:polyline {:fill "none" :stroke "orange"
               :points (str/join " " (map
                                      (fn [{:keys [x y]}] (str x "," y))
                                      tour))}])
 
-(defn canvas
+(defn render-svg
   []
-  (when-let [r @(rf/subscribe [:tour])]
+  (if-let [r @(rf/subscribe [:tour])]
+    [:svg {:style {:width 204 :height 204}}
+     (map city-pixel (:l r))
+     (tour-path (:l r))]
+    [:svg {:style {:width 204 :height 204}}]))
+
+(defn display
+  []
+  [:div
+   [:div.row-fluid
     [:div
-     [:p "Cities arranged on a 204x204 px grid."]
-     [:div
-      [:svg {:style {:width 204 :height 204}}
-       (map
-        city-pixel
-        (:l r))
-       (tour-path (:l r))]
-      [:h4 "Tour log"]
-      [:pre (log-tour r)]]]))
+     [:div.span4.offset2 (render-svg)]
+     [:div.span6
+      [:p "Twenty cities arranged on a 204x204 px grid."]]]
+    [:div.span4
+     (let [r @(rf/subscribe [:spinner])]
+       (if r
+         [:div.span4 "Running simulation..."]
+         [:div.span4 "Ready."]))
+     [:input
+      {:type "button"
+       :value "GO!"
+       :on-click  (fn [_]
+                    (rf/dispatch-sync [:spinner-on])
+                    (rf/dispatch [:run-sim])) }]]]
+   [:div.span6.offset3
+    (when-let [r @(rf/subscribe [:tour])]
+      [:p "Final distance was "
+       (m/get-distance r)
+       " units."])]])
 
-(defn spinner
+(defn branding
   []
-  (when-let [r @(rf/subscribe [:spinner])]
-    (when r
-      [:h3 "Running simulation..."])))
-
-(defn control-panel
-  []
-  [:input
-   {:type "button"
-    :value "GO!"
-    :on-click  (fn [_]
-                 (rf/dispatch-sync [:spinner-on])
-                 (rf/dispatch [:run-sim])) }])
+  [:div.navbar.navbar-fixed-top.brand
+   [:div.navbar-inner
+    [:div.container
+     [:div.brand {:id :headline}
+      [:a {:href "https://ecik.youhavethewrong.info/blog"}
+       "YouHaveTheWrong.info"]]]]])
 
 (defn demo
   []
   [:div
-   [title]
-   [control-panel]
-   [canvas]
-   [spinner]
-   ])
+   [branding]
+   [:div {:id :content :class :container}
+    [title]
+    [display]]])
 
 (defn mount-root
   []
