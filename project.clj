@@ -6,19 +6,20 @@
 
   :source-paths ["src/cljs"]
 
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [org.clojure/clojurescript "1.9.456"]
                  [cljsjs/react "15.4.2-2"]
                  [cljsjs/react-dom "15.4.2-2"]
                  [cljsjs/nodejs-externs "1.0.4-1"]
                  [reagent "0.6.0"]
-                 [re-frame "0.9.2"]]
+                 [re-frame "0.9.2"]
+                 [teaspoon "0.1.0-SNAPSHOT"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]]
 
   :min-lein-version "2.5.3"
 
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "src/cljc"]
+  :cljsbuild {:builds {:app {:source-paths ["src/cljs"]
                              :compiler {:output-to     "app/js/p/app.js"
                                         :output-dir    "app/js/p/out"
                                         :asset-path    "js/p/out"

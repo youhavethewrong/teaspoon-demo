@@ -4,8 +4,8 @@
    [reagent.core :as reagent]
    [re-frame.core :as rf]
    [cljsjs.react]
-   [teaspoon-demo.model :refer [City TourManager] :as m]
-   [teaspoon-demo.sa :as sa]))
+   [teaspoon.core :refer [City TourManager] :as m]
+   [teaspoon.sa :as sa]))
 
 (enable-console-print!)
 
