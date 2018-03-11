@@ -1,7 +1,8 @@
 (ns teaspoon-demo.sa-test
-  (:require [teaspoon-demo.sa :as sa]
-            [teaspoon-demo.model :refer [City TourManager]]
-            [clojure.test :refer [is deftest testing]]))
+  (:require [clojure.test :refer [is deftest testing]]
+            [teaspoon.core :as tsp]
+            [teaspoon.sa :as sa])
+  (:import [teaspoon.core City Tour TourManager]))
 
 (deftest sa-test
   (testing "Tests the ability of the simulated annealing algorithm to find a
@@ -31,8 +32,12 @@
                             c9  c10 c11 c12
                             c13 c14 c15 c16
                             c17 c18 c19 c20])
-          random-distance (get-distance (generate-individual (Tour. []) tm (number-of-cities tm)))
+          random-distance (tsp/get-distance
+                           (tsp/generate-individual (Tour. [])
+                                                    tm
+                                                    (tsp/number-of-cities tm)))
           t (sa/find-solution tm 10000)]
+      (println "Found solution" (tsp/get-distance t))
       (is (> random-distance
-             (get-distance t)))
+             (tsp/get-distance t)))
       )))
